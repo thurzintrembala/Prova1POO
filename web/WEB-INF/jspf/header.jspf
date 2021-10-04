@@ -1,0 +1,56 @@
+<%-- any content can be specified here e.g.: --%>
+<%@ page pageEncoding="UTF-8" %>
+<%@page import="java.util.Random"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
+<%
+    String sessionName = (String) session.getAttribute("login");
+    ServletContext context = request.getServletContext();
+    List<String> usuarios = context.getAttribute("x") == null ? new ArrayList() : (List) context.getAttribute("x");
+    List<Integer> numeros = session.getAttribute("lista") == null ? new ArrayList() : (List) session.getAttribute("lista");
+
+    if (request.getParameter("login") != null) {
+        session.setAttribute("login", request.getParameter("login"));
+        usuarios.add((String) request.getParameter("login"));
+        context.setAttribute("x", usuarios);
+        Random gerador = new Random();
+        if (numeros.isEmpty()) {
+            for (int i = 0; i < 6; i++) {
+                int numero = 1 + gerador.nextInt(59);
+                if (numeros.indexOf(numero) == -1) {
+                    numeros.add(numero);
+                    continue;
+                }
+                i--;
+            }
+            session.setAttribute("lista", numeros);
+        }
+        
+        response.sendRedirect(request.getRequestURI());
+
+    } else if (request.getParameter("Sair") != null) {
+        usuarios.remove(usuarios.indexOf(sessionName));
+        context.setAttribute("x", usuarios);
+        session.removeAttribute("login");
+        response.sendRedirect(request.getRequestURI());
+    }
+
+%>
+
+<form method="post">
+    <h1>Arthur Andrade</h1>
+    <h2>Links que você pode gostar:</h2>
+    <a href="index.jsp">Home</a>
+    <a href="Arthur-Andrade.jsp">Sobre</a>
+    <a href="arthur-andrade-dica-megasena.jsp">Mega-Sena</a>
+
+
+    <%if (sessionName == null) {%>
+
+    <input type="text" name="login" placeholder="Entre com seu nome" required/>
+    <input type ="submit" name="loginBotao" value="Login"/>
+    <%} else {%>
+    Bem vindo, <%=sessionName%>
+    <input type="submit" name="Sair" value="Sair"/>
+    <%}%>
+</form>
